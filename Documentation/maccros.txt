@@ -1,0 +1,67 @@
+Sub EnviarCorreo()
+    
+    Dim correoApp As Object
+    Dim email As Object
+    Dim destinatarios() As String
+    Dim cuerpo As String
+    Dim i As Integer
+    
+    ' Crear objeto Outlook
+    Set correoApp = CreateObject("Outlook.Application")
+    
+    ' Agregar destinatarios a matriz
+    destinatarios = Split("destinatario1@correo.com, destinatario2@correo.com, destinatario3@correo.com, ..., destinatarioN@correo.com", ", ")
+    
+    ' Configurar propiedades del correo electrónico
+    For i = LBound(destinatarios) To UBound(destinatarios)
+        
+        ' Crear objeto email
+        Set email = correoApp.CreateItem(0)
+        
+        ' Crear información personalizada para cada destinatario
+        cuerpo = "Hola " & Split(destinatarios(i), "@")(0) & "," & vbNewLine & vbNewLine & "Este es el cuerpo del mensaje personalizado para el destinatario " & Split(destinatarios(i), "@")(0)
+        
+        With email
+            .To = destinatarios(i)
+            .Subject = "Asunto del correo electrónico"
+            .Body = cuerpo
+            .Send
+        End With
+        
+        ' Manejo de errores
+        If Err.Number = 0 Then
+            ' Mostrar mensaje de confirmación
+            MsgBox "El correo electrónico se envió correctamente a " & destinatarios(i) & ".", vbInformation, "Mensaje"
+        Else
+            ' Mostrar mensaje de error
+            MsgBox "Error al enviar el correo electrónico a " & destinatarios(i) & "." & vbNewLine & "Error: " & Err.Description, vbExclamation, "Error"
+        End If
+        
+        ' Liberar objeto email
+        Set email = Nothing
+        
+    Next i
+    
+    ' Liberar objeto Outlook
+    Set correoApp = Nothing
+    
+End Sub
+
+Sub EnviarCorreosProgramados()
+    
+    ' Definir la fecha y hora de los correos electrónicos programados
+    Dim fechas() As Date
+    fechas = Array("2023-05-01 10:00:00", "2023-05-02 14:30:00", "2023-05-03 09:45:00")
+    
+    ' Configurar el intervalo de tiempo entre cada ejecución de la función
+    Dim intervalo As Date
+    intervalo = TimeValue("00:01:00")
+    
+    ' Programar la ejecución de la función para cada fecha definida
+    Dim i As Integer
+    For i = LBound(fechas) To UBound(fechas)
+        Application.OnTime fechas(i), "EnviarCorreo"
+        fechas(i) = fechas(i) + intervalo
+    Next i
+    
+End Sub
